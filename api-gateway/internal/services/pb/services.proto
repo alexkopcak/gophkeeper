@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package services;
+
+option go_package = "./internal/services/pb";
+
+// Auth service
+// Register
+message RegisterRequest {
+  string userName = 1;
+  string password = 2;
+}
+  
+message RegisterResponse {
+  string token = 1;
+  string error = 2;
+}
+
+// Login 
+message LoginRequest {
+  string userName = 1;
+  string password = 2;
+}
+    
+message LoginResponse {
+  string token = 1;
+  string error = 2;
+}
+
+// Query service
+// Enum Message type
+enum MessageType {
+  UNKNOWN_TYPE = 0;
+  LOGIN_PASSWORD = 1;
+  TEXT = 2;
+  BINNARY = 3;
+  CARD = 4;
+  ANY = 5;
+}
+  
+// Query
+message QueryRequest {
+  MessageType type = 1;
+}
+
+message QueryResponse {
+  int64 id = 1;
+  bytes data = 2;
+  string meta = 3;
+  string error = 4;
+}
+
+// Command service
+// Command
+// Enum operation type
+enum OperationType {
+  UNKNOWN_OPERATION = 0;
+  ADD = 1;
+  MODIFY = 2;
+  DELETE = 3;
+}
+  
+message CommandRequest {
+  OperationType operation = 1;
+  MessageType type = 2;
+  bytes data = 3;
+  string meta = 4;
+}
+  
+message CommandResponse {
+  string error = 1;
+}
+  
+service APIGatewayService {
+// Auth service
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+// Query service
+  rpc Query(QueryRequest) returns (QueryResponse) {}
+// Command service
+  rpc Command(CommandRequest) returns (CommandResponse) {}
+}  
+  

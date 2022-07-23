@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package command;
+
+option go_package = "./internal/command/pb";
+
+// Enum Message type
+enum MessageType {
+  UNKNOWN_TYPE = 0;
+  LOGIN_PASSWORD = 1;
+  TEXT = 2;
+  BINNARY = 3;
+  CARD = 4;
+}
+
+// Enum operation type
+enum OperationType {
+  UNKNOWN_OPERATION = 0;
+  ADD = 1;
+  MODIFY = 2;
+  DELETE = 3;
+}
+
+// Command
+message CommandRequest {
+  OperationType operation = 1;
+  MessageType type = 2;
+  int64 userID = 3;
+  bytes data = 4;
+  string meta = 5;
+}
+
+message CommandResponse {
+  string error = 1;
+}
+
+service CommandService {
+    rpc Command(CommandRequest) returns (CommandResponse) {}
+}
