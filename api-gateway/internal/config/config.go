@@ -78,4 +78,5 @@ func (c *Config) getFlagConfig() {
 	flag.StringVar(&c.AuthServiceURL, "q", c.AuthServiceURL, "Query service address, example localhost:30003")
 	flag.StringVar(&c.AuthServiceURL, "c", c.AuthServiceURL, "Command service address, example localhost:30004")
 	flag.BoolVar(&c.TLS, "t", c.TLS, "Enable TLS gRPC")
+	flag.Parse()
 }
