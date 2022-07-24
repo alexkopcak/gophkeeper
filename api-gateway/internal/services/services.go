@@ -93,7 +93,7 @@ func (s *APIGatewayService) Query(ctx context.Context, in *pb.QueryRequest) (*pb
 		UserID: userID,
 	})
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "query error:", err)
+		return nil, status.Errorf(codes.Internal, "query error: %v", err)
 	}
 	return &pb.QueryResponse{
 		Id:    res.Id,
@@ -117,7 +117,7 @@ func (s *APIGatewayService) Command(ctx context.Context, in *pb.CommandRequest) 
 		Meta:      in.Meta,
 	})
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "command error:", err)
+		return nil, status.Errorf(codes.Internal, "command error: %v", err)
 	}
 
 	return &pb.CommandResponse{Error: res.Error}, nil

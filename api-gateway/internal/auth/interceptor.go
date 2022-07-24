@@ -64,7 +64,7 @@ func (inter *AuthMiddlewareInterceptor) authorize(ctx context.Context, method st
 		return ctx, status.Errorf(codes.Unauthenticated, "%v", err)
 	}
 	if res.Error != "" {
-		return ctx, status.Errorf(codes.Internal, "internal error: ", res.Error)
+		return ctx, status.Errorf(codes.Internal, "internal error: %v", res.Error)
 	}
 
 	ctx = context.WithValue(ctx, KeyPrincipalID, res.UserID)

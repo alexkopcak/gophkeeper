@@ -55,7 +55,7 @@ func (app *App) Run() error {
 	app.commandClient = command.NewCommandServiceClient(ctx, app.cfg)
 
 	idleConnClosed := make(chan struct{})
-	sigint := make(chan os.Signal)
+	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
 	go func() {
@@ -83,9 +83,9 @@ func (app *App) startGRPC() error {
 		grpc.UnaryInterceptor(app.interceptor.Unary()),
 	}
 	if app.cfg.TLS {
-		creds, err := credentials.NewServerTLSFromFile(certFile, keyFile)
-		if err != nil {
-			return err
+		creds, er := credentials.NewServerTLSFromFile(certFile, keyFile)
+		if er != nil {
+			return er
 		}
 		opts = append(opts, grpc.Creds(creds))
 	}
