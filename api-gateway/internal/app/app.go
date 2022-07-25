@@ -23,7 +23,7 @@ import (
 type App struct {
 	cfg           *config.Config
 	authClient    *auth.ServiceClient
-	interceptor   *auth.AuthMiddlewareInterceptor
+	interceptor   *auth.MiddlewareInterceptor
 	queryClient   *query.ServiceClient
 	commandClient *command.ServiceClient
 	serverGRPC    *grpc.Server
@@ -70,7 +70,10 @@ func (app *App) Run() error {
 		}
 	}()
 
-	return app.startGRPC()
+	err := app.startGRPC()
+	close(sigint)
+
+	return err
 }
 
 func (app *App) startGRPC() error {

@@ -12,15 +12,15 @@ import (
 	"github.com/alexkopcak/gophkeeper/api-gateway/internal/auth/pb"
 )
 
-type AuthMiddlewareInterceptor struct {
+type MiddlewareInterceptor struct {
 	*ServiceClient
 }
 
-func NewAuthMiddlewareInterceptor(client *ServiceClient) *AuthMiddlewareInterceptor {
-	return &AuthMiddlewareInterceptor{client}
+func NewAuthMiddlewareInterceptor(client *ServiceClient) *MiddlewareInterceptor {
+	return &MiddlewareInterceptor{client}
 }
 
-func (inter *AuthMiddlewareInterceptor) Unary() grpc.UnaryServerInterceptor {
+func (inter *MiddlewareInterceptor) Unary() grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
 		req interface{},
@@ -36,7 +36,7 @@ func (inter *AuthMiddlewareInterceptor) Unary() grpc.UnaryServerInterceptor {
 	}
 }
 
-func (inter *AuthMiddlewareInterceptor) authorize(ctx context.Context, method string) (context.Context, error) {
+func (inter *MiddlewareInterceptor) authorize(ctx context.Context, method string) (context.Context, error) {
 	if method == "/gophkeeper.grpc.gophkeeper/Login" ||
 		method == "/gophkeeper.grpc.gophkeeper/Register" {
 		return ctx, nil

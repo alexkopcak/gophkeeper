@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "./internal/pb";
+
+// Register
+message RegisterRequest {
+  string userName = 1;
+  string password = 2;
+}
+
+message RegisterResponse {
+  string token = 1;
+  int64 userID = 2;
+  string error = 3;
+}
+
+// Login
+message LoginRequest {
+  string userName = 1;
+  string password = 2;
+} 
+
+message LoginResponse {
+  string token = 1;
+  int64 userID = 2;
+  string error = 3;
+}
+
+// Verify
+message VerifyRequest {
+  string token = 1;
+}
+
+message VerifyResponse {
+  int64 userID = 1;
+  string error = 2;
+}
+
+service AuthService {
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc Verify(VerifyRequest) returns(VerifyResponse) {}
+}
