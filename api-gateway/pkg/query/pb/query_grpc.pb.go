@@ -2,12 +2,13 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.6.1
-// source: internal/query/pb/query.proto
+// source: api-gateway/pkg/query/pb/query.proto
 
 package pb
 
 import (
 	context "context"
+	pb "github.com/alexkopcak/gophkeeper/api-gateway/pkg/services/pb"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -22,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type QueryServiceClient interface {
-	Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryResponse, error)
+	Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*pb.QueryResponseArray, error)
 }
 
 type queryServiceClient struct {
@@ -33,8 +34,8 @@ func NewQueryServiceClient(cc grpc.ClientConnInterface) QueryServiceClient {
 	return &queryServiceClient{cc}
 }
 
-func (c *queryServiceClient) Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryResponse, error) {
-	out := new(QueryResponse)
+func (c *queryServiceClient) Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*pb.QueryResponseArray, error) {
+	out := new(pb.QueryResponseArray)
 	err := c.cc.Invoke(ctx, "/query.QueryService/Query", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -46,7 +47,7 @@ func (c *queryServiceClient) Query(ctx context.Context, in *QueryRequest, opts .
 // All implementations must embed UnimplementedQueryServiceServer
 // for forward compatibility
 type QueryServiceServer interface {
-	Query(context.Context, *QueryRequest) (*QueryResponse, error)
+	Query(context.Context, *QueryRequest) (*pb.QueryResponseArray, error)
 	mustEmbedUnimplementedQueryServiceServer()
 }
 
@@ -54,7 +55,7 @@ type QueryServiceServer interface {
 type UnimplementedQueryServiceServer struct {
 }
 
-func (UnimplementedQueryServiceServer) Query(context.Context, *QueryRequest) (*QueryResponse, error) {
+func (UnimplementedQueryServiceServer) Query(context.Context, *QueryRequest) (*pb.QueryResponseArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
 }
 func (UnimplementedQueryServiceServer) mustEmbedUnimplementedQueryServiceServer() {}
@@ -101,5 +102,5 @@ var QueryService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/query/pb/query.proto",
+	Metadata: "api-gateway/pkg/query/pb/query.proto",
 }

@@ -11,10 +11,9 @@ import (
 type Config struct {
 	Port          string
 	DBPostgresURL string
-	JWTSecretKey  string
 }
 
-const configFile = "./internal/config/envs/auth.env"
+const configFile = "./internal/config/envs/query.env"
 
 func NewConfig() *Config {
 	cfg := Config{}
@@ -27,9 +26,8 @@ func NewConfig() *Config {
 }
 
 func (c *Config) setDefualtValues() {
-	c.Port = ":50001"
-	c.DBPostgresURL = "postgres://<USER>:<PASSWORD>@<HOST>:<PORT>/auth_db"
-	c.JWTSecretKey = "JWT SECRET KEY"
+	c.Port = ":60002"
+	c.DBPostgresURL = "postgres://<USER>:<PASSWORD>@<HOST>:<PORT>/gophkeeper_db"
 }
 
 func (c *Config) loadEnv() {
@@ -38,25 +36,19 @@ func (c *Config) loadEnv() {
 		log.Println(err)
 	}
 
-	port, ok := os.LookupEnv("PORT_AUTH")
+	port, ok := os.LookupEnv("PORT_QUERY")
 	if ok {
 		c.Port = port
 	}
 
-	dbURL, ok := os.LookupEnv("DB_AUTH_URL")
+	dbURL, ok := os.LookupEnv("DB_GOPHKEEPER_URL")
 	if ok {
 		c.DBPostgresURL = dbURL
-	}
-
-	jwtKey, ok := os.LookupEnv("JWT_SECRET_KEY")
-	if ok {
-		c.JWTSecretKey = jwtKey
 	}
 }
 
 func (c *Config) getFlagConfig() {
-	flag.StringVar(&c.Port, "p", c.Port, "Auth service port, example :30001")
+	flag.StringVar(&c.Port, "p", c.Port, "Query service port, example :30001")
 	flag.StringVar(&c.DBPostgresURL, "db", c.DBPostgresURL, "DB Postgres URL, example postgres://<USER>:<PASSWORD>@<HOST>:<PORT>/auth_db")
-	flag.StringVar(&c.JWTSecretKey, "j", c.JWTSecretKey, "JWT secret key, example secretKey")
 	flag.Parse()
 }

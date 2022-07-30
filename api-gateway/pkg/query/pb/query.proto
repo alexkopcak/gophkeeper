@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package query;
 
-option go_package = "./internal/query/pb";
+option go_package = "github.com/alexkopcak/gophkeeper/api-gateway/pkg/query/pb";
 
 // Enum Message type
 enum MessageType {
@@ -20,13 +20,8 @@ message QueryRequest {
   int64 userID = 2;
 }
 
-message QueryResponse {
-  int64 id = 1;
-  bytes data = 2;
-  string meta = 3;
-  string error = 4;
-}
+import "api-gateway/pkg/services/pb/services.proto";
 
 service QueryService{
-  rpc Query(QueryRequest) returns (QueryResponse) {} 
+  rpc Query(QueryRequest) returns (services.QueryResponseArray) {} 
 }

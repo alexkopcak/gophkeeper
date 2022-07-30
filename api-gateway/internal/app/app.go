@@ -17,7 +17,7 @@ import (
 	"github.com/alexkopcak/gophkeeper/api-gateway/internal/config"
 	"github.com/alexkopcak/gophkeeper/api-gateway/internal/query"
 	"github.com/alexkopcak/gophkeeper/api-gateway/internal/services"
-	"github.com/alexkopcak/gophkeeper/api-gateway/internal/services/pb"
+	"github.com/alexkopcak/gophkeeper/api-gateway/pkg/services/pb"
 )
 
 type App struct {
@@ -35,13 +35,8 @@ const (
 )
 
 func NewApp() *App {
-	cfg, err := config.NewConfig()
-	if err != nil {
-		log.Fatal("failed at config", err)
-	}
-
 	return &App{
-		cfg: cfg,
+		cfg: config.NewConfig(),
 	}
 }
 

@@ -7,12 +7,12 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/alexkopcak/gophkeeper/api-gateway/internal/auth"
-	authpb "github.com/alexkopcak/gophkeeper/api-gateway/internal/auth/pb"
 	"github.com/alexkopcak/gophkeeper/api-gateway/internal/command"
-	commpb "github.com/alexkopcak/gophkeeper/api-gateway/internal/command/pb"
 	"github.com/alexkopcak/gophkeeper/api-gateway/internal/query"
-	querpb "github.com/alexkopcak/gophkeeper/api-gateway/internal/query/pb"
-	"github.com/alexkopcak/gophkeeper/api-gateway/internal/services/pb"
+	authpb "github.com/alexkopcak/gophkeeper/api-gateway/pkg/auth/pb"
+	commpb "github.com/alexkopcak/gophkeeper/api-gateway/pkg/command/pb"
+	querpb "github.com/alexkopcak/gophkeeper/api-gateway/pkg/query/pb"
+	"github.com/alexkopcak/gophkeeper/api-gateway/pkg/services/pb"
 )
 
 type APIGatewayService struct {
@@ -83,7 +83,7 @@ func getUserIDfromContext(ctx context.Context) (int64, error) {
 	return userID, nil
 }
 
-func (s *APIGatewayService) Query(ctx context.Context, in *pb.QueryRequest) (*pb.QueryResponse, error) {
+func (s *APIGatewayService) Query(ctx context.Context, in *pb.QueryRequest) (*pb.QueryResponseArray, error) {
 	userID, err := getUserIDfromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -95,10 +95,10 @@ func (s *APIGatewayService) Query(ctx context.Context, in *pb.QueryRequest) (*pb
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "query error: %v", err)
 	}
-	return &pb.QueryResponse{
-		Id:    res.Id,
-		Data:  res.Data,
-		Meta:  res.Meta,
+
+	return &pb.QueryResponseArray{
+		Count: res.Count,
+		Items: res.Items,
 		Error: res.Error,
 	}, nil
 }

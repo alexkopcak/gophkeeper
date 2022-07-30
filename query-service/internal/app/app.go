@@ -9,18 +9,16 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/alexkopcak/gophkeeper/auth-service/internal/config"
-	"github.com/alexkopcak/gophkeeper/auth-service/internal/db"
-	"github.com/alexkopcak/gophkeeper/auth-service/internal/pb"
-	"github.com/alexkopcak/gophkeeper/auth-service/internal/services"
-	"github.com/alexkopcak/gophkeeper/auth-service/internal/utils"
+	"github.com/alexkopcak/gophkeeper/api-gateway/pkg/query/pb"
+	"github.com/alexkopcak/gophkeeper/query-service/internal/config"
+	"github.com/alexkopcak/gophkeeper/query-service/internal/db"
+	"github.com/alexkopcak/gophkeeper/query-service/internal/services"
 )
 
 type App struct {
 	cfg        *config.Config
-	server     *services.AuthServer
+	server     *services.QueryServer
 	serverGRPC *grpc.Server
-	jwt        *utils.JwtWraper
 	db         *db.Handler
 }
 
@@ -33,11 +31,6 @@ func NewApp() *App {
 func (app *App) Run() error {
 	app.db = db.Init(app.cfg.DBPostgresURL)
 
-	app.jwt = &utils.JwtWraper{
-		SecretKey: app.cfg.JWTSecretKey,
-		Issuer:    "Gophkeeper.Auth service",
-	}
-
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
@@ -48,9 +41,8 @@ func (app *App) Run() error {
 		}
 	}()
 
-	app.server = &services.AuthServer{
+	app.server = &services.QueryServer{
 		Handler: app.db,
-		Jwt:     app.jwt,
 	}
 
 	err := app.startGRPC()
@@ -67,16 +59,16 @@ func (app *App) startGRPC() error {
 
 	app.serverGRPC = grpc.NewServer()
 
-	pb.RegisterAuthServiceServer(
+	pb.RegisterQueryServiceServer(
 		app.serverGRPC,
 		app.server,
 	)
 
-	log.Printf("Auth service start on %v", app.cfg.Port)
+	log.Printf("Query service start on %v", app.cfg.Port)
 
 	err = app.serverGRPC.Serve(listen)
 	if err == nil {
-		log.Println("Auth service graceful shutdown")
+		log.Println("Query service graceful shutdown")
 	}
 	return err
 }

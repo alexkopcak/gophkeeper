@@ -19,14 +19,14 @@ type Config struct {
 
 const configFile = "./internal/config/envs/dev.env"
 
-func NewConfig() (*Config, error) {
+func NewConfig() *Config {
 	cfg := Config{}
 
 	cfg.setDefualtValues()
 	cfg.loadEnv()
 	cfg.getFlagConfig()
 
-	return &cfg, nil
+	return &cfg
 }
 
 func (c *Config) setDefualtValues() {

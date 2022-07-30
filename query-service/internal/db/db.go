@@ -6,7 +6,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/alexkopcak/gophkeeper/auth-service/internal/models"
+	"github.com/alexkopcak/gophkeeper/query-service/internal/models"
 )
 
 type Handler struct {
@@ -20,7 +20,7 @@ func Init(url string) *Handler {
 		log.Fatal(err)
 	}
 
-	if err = db.AutoMigrate(&models.User{}); err != nil {
+	if err = db.AutoMigrate(&models.Record{}); err != nil {
 		log.Fatal(err)
 	}
 

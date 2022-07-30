@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.6.1
-// source: internal/services/pb/services.proto
+// source: api-gateway/pkg/services/pb/services.proto
 
 package pb
 
@@ -26,7 +26,7 @@ type APIGatewayServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	// Query service
-	Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryResponse, error)
+	Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryResponseArray, error)
 	// Command service
 	Command(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error)
 }
@@ -57,8 +57,8 @@ func (c *aPIGatewayServiceClient) Login(ctx context.Context, in *LoginRequest, o
 	return out, nil
 }
 
-func (c *aPIGatewayServiceClient) Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryResponse, error) {
-	out := new(QueryResponse)
+func (c *aPIGatewayServiceClient) Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryResponseArray, error) {
+	out := new(QueryResponseArray)
 	err := c.cc.Invoke(ctx, "/services.APIGatewayService/Query", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ type APIGatewayServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	// Query service
-	Query(context.Context, *QueryRequest) (*QueryResponse, error)
+	Query(context.Context, *QueryRequest) (*QueryResponseArray, error)
 	// Command service
 	Command(context.Context, *CommandRequest) (*CommandResponse, error)
 	mustEmbedUnimplementedAPIGatewayServiceServer()
@@ -99,7 +99,7 @@ func (UnimplementedAPIGatewayServiceServer) Register(context.Context, *RegisterR
 func (UnimplementedAPIGatewayServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedAPIGatewayServiceServer) Query(context.Context, *QueryRequest) (*QueryResponse, error) {
+func (UnimplementedAPIGatewayServiceServer) Query(context.Context, *QueryRequest) (*QueryResponseArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
 }
 func (UnimplementedAPIGatewayServiceServer) Command(context.Context, *CommandRequest) (*CommandResponse, error) {
@@ -215,5 +215,5 @@ var APIGatewayService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/services/pb/services.proto",
+	Metadata: "api-gateway/pkg/services/pb/services.proto",
 }

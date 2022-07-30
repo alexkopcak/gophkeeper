@@ -7,8 +7,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/alexkopcak/gophkeeper/api-gateway/internal/command/pb"
 	"github.com/alexkopcak/gophkeeper/api-gateway/internal/config"
+	"github.com/alexkopcak/gophkeeper/api-gateway/pkg/command/pb"
 )
 
 type ServiceClient struct {
