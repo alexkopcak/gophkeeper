@@ -32,13 +32,13 @@ func (inter *MiddlewareInterceptor) Unary() grpc.UnaryServerInterceptor {
 			return nil, err
 		}
 
-		return handler(cont, err)
+		return handler(cont, req)
 	}
 }
 
 func (inter *MiddlewareInterceptor) authorize(ctx context.Context, method string) (context.Context, error) {
-	if method == "/gophkeeper.grpc.gophkeeper/Login" ||
-		method == "/gophkeeper.grpc.gophkeeper/Register" {
+	if method == "/services.APIGatewayService/Register" ||
+		method == "/services.APIGatewayService/Login" {
 		return ctx, nil
 	}
 
@@ -62,9 +62,6 @@ func (inter *MiddlewareInterceptor) authorize(ctx context.Context, method string
 	})
 	if err != nil {
 		return ctx, status.Errorf(codes.Unauthenticated, "%v", err)
-	}
-	if res.Error != "" {
-		return ctx, status.Errorf(codes.Internal, "internal error: %v", res.Error)
 	}
 
 	ctx = context.WithValue(ctx, KeyPrincipalID, res.UserID)

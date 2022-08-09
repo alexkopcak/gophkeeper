@@ -17,7 +17,7 @@ type Config struct {
 	TLS               bool
 }
 
-const configFile = "./internal/config/envs/dev.env"
+const configFile = "./api-gateway/internal/config/envs/dev.env"
 
 func NewConfig() *Config {
 	cfg := Config{}

@@ -28,7 +28,9 @@ type APIGatewayServiceClient interface {
 	// Query service
 	Query(ctx context.Context, in *QueryRequest, opts ...grpc.CallOption) (*QueryResponseArray, error)
 	// Command service
-	Command(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error)
+	AddCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error)
+	ModifyCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error)
+	DeleteCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error)
 }
 
 type aPIGatewayServiceClient struct {
@@ -66,9 +68,27 @@ func (c *aPIGatewayServiceClient) Query(ctx context.Context, in *QueryRequest, o
 	return out, nil
 }
 
-func (c *aPIGatewayServiceClient) Command(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error) {
+func (c *aPIGatewayServiceClient) AddCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error) {
 	out := new(CommandResponse)
-	err := c.cc.Invoke(ctx, "/services.APIGatewayService/Command", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/services.APIGatewayService/AddCommand", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIGatewayServiceClient) ModifyCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error) {
+	out := new(CommandResponse)
+	err := c.cc.Invoke(ctx, "/services.APIGatewayService/ModifyCommand", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIGatewayServiceClient) DeleteCommand(ctx context.Context, in *CommandRequest, opts ...grpc.CallOption) (*CommandResponse, error) {
+	out := new(CommandResponse)
+	err := c.cc.Invoke(ctx, "/services.APIGatewayService/DeleteCommand", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +105,9 @@ type APIGatewayServiceServer interface {
 	// Query service
 	Query(context.Context, *QueryRequest) (*QueryResponseArray, error)
 	// Command service
-	Command(context.Context, *CommandRequest) (*CommandResponse, error)
+	AddCommand(context.Context, *CommandRequest) (*CommandResponse, error)
+	ModifyCommand(context.Context, *CommandRequest) (*CommandResponse, error)
+	DeleteCommand(context.Context, *CommandRequest) (*CommandResponse, error)
 	mustEmbedUnimplementedAPIGatewayServiceServer()
 }
 
@@ -102,8 +124,14 @@ func (UnimplementedAPIGatewayServiceServer) Login(context.Context, *LoginRequest
 func (UnimplementedAPIGatewayServiceServer) Query(context.Context, *QueryRequest) (*QueryResponseArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Query not implemented")
 }
-func (UnimplementedAPIGatewayServiceServer) Command(context.Context, *CommandRequest) (*CommandResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Command not implemented")
+func (UnimplementedAPIGatewayServiceServer) AddCommand(context.Context, *CommandRequest) (*CommandResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddCommand not implemented")
+}
+func (UnimplementedAPIGatewayServiceServer) ModifyCommand(context.Context, *CommandRequest) (*CommandResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ModifyCommand not implemented")
+}
+func (UnimplementedAPIGatewayServiceServer) DeleteCommand(context.Context, *CommandRequest) (*CommandResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteCommand not implemented")
 }
 func (UnimplementedAPIGatewayServiceServer) mustEmbedUnimplementedAPIGatewayServiceServer() {}
 
@@ -172,20 +200,56 @@ func _APIGatewayService_Query_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIGatewayService_Command_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _APIGatewayService_AddCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CommandRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIGatewayServiceServer).Command(ctx, in)
+		return srv.(APIGatewayServiceServer).AddCommand(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/services.APIGatewayService/Command",
+		FullMethod: "/services.APIGatewayService/AddCommand",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIGatewayServiceServer).Command(ctx, req.(*CommandRequest))
+		return srv.(APIGatewayServiceServer).AddCommand(ctx, req.(*CommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIGatewayService_ModifyCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIGatewayServiceServer).ModifyCommand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/services.APIGatewayService/ModifyCommand",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIGatewayServiceServer).ModifyCommand(ctx, req.(*CommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _APIGatewayService_DeleteCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIGatewayServiceServer).DeleteCommand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/services.APIGatewayService/DeleteCommand",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIGatewayServiceServer).DeleteCommand(ctx, req.(*CommandRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -210,8 +274,16 @@ var APIGatewayService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _APIGatewayService_Query_Handler,
 		},
 		{
-			MethodName: "Command",
-			Handler:    _APIGatewayService_Command_Handler,
+			MethodName: "AddCommand",
+			Handler:    _APIGatewayService_AddCommand_Handler,
+		},
+		{
+			MethodName: "ModifyCommand",
+			Handler:    _APIGatewayService_ModifyCommand_Handler,
+		},
+		{
+			MethodName: "DeleteCommand",
+			Handler:    _APIGatewayService_DeleteCommand_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

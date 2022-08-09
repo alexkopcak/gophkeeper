@@ -2,59 +2,58 @@ package services
 
 import (
 	"context"
-	"log"
 
 	querypb "github.com/alexkopcak/gophkeeper/api-gateway/pkg/query/pb"
 	servicespb "github.com/alexkopcak/gophkeeper/api-gateway/pkg/services/pb"
 	"github.com/alexkopcak/gophkeeper/query-service/internal/db"
 	"github.com/alexkopcak/gophkeeper/query-service/internal/models"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type QueryServer struct {
 	querypb.UnimplementedQueryServiceServer
-	Handler *db.Handler
+	storage db.Storage
 }
 
 var _ querypb.QueryServiceServer = (*QueryServer)(nil)
 
-func NewQueryServer() *QueryServer {
-	return &QueryServer{}
+func NewQueryServer(storage db.Storage) *QueryServer {
+	return &QueryServer{storage: storage}
 }
 
 func (s *QueryServer) Query(ctx context.Context, in *querypb.QueryRequest) (*servicespb.QueryResponseArray, error) {
-	var record models.Record
+	var record *models.Record
 	if in.Type == querypb.MessageType_ANY {
-		record = models.Record{UserId: in.UserID}
+		record = &models.Record{UserId: in.UserID}
 	} else {
-		record = models.Record{UserId: in.UserID, MessageType: byte(in.Type)}
+		record = &models.Record{UserId: in.UserID, MessageType: byte(in.Type)}
 	}
 
-	rows, err := s.Handler.DB.Where(&record).Rows()
+	rows, err := s.storage.GetRecord(record)
 
 	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
-	outArray := &servicespb.QueryResponseArray{}
-
-	for rows.Next() {
-		err = s.Handler.DB.ScanRows(rows, &record)
-		if err != nil {
-			outArray.Error = err.Error()
-			return outArray, err
-		}
-
-		out := &servicespb.QueryResponseArray_QueryResponse{
-			Id:   record.Id,
-			Type: servicespb.MessageType(record.MessageType),
-			Data: record.Data,
-			Meta: record.Meta,
-		}
-
-		outArray.Count += 1
-		outArray.Items = append(outArray.Items, out)
+		return &servicespb.QueryResponseArray{
+			Count: 0,
+			Items: nil,
+		}, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return outArray, err
+	count := len(*rows)
+
+	items := make([]*servicespb.QueryResponseArray_QueryResponse, 0, count)
+
+	for _, v := range *rows {
+		items = append(items, &servicespb.QueryResponseArray_QueryResponse{
+			Id:   v.Id,
+			Type: servicespb.MessageType(v.MessageType),
+			Data: v.Data,
+			Meta: v.Meta,
+		})
+	}
+
+	return &servicespb.QueryResponseArray{
+		Count: int64(count),
+		Items: items,
+	}, nil
 }

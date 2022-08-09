@@ -21,7 +21,7 @@ type App struct {
 	server     *services.AuthServer
 	serverGRPC *grpc.Server
 	jwt        *utils.JwtWraper
-	db         *db.Handler
+	postgres   db.Storage
 }
 
 func NewApp() *App {
@@ -31,7 +31,7 @@ func NewApp() *App {
 }
 
 func (app *App) Run() error {
-	app.db = db.Init(app.cfg.DBPostgresURL)
+	app.postgres = db.NewPostgres(app.cfg.DBPostgresURL)
 
 	app.jwt = &utils.JwtWraper{
 		SecretKey: app.cfg.JWTSecretKey,
@@ -48,10 +48,10 @@ func (app *App) Run() error {
 		}
 	}()
 
-	app.server = &services.AuthServer{
-		Handler: app.db,
-		Jwt:     app.jwt,
-	}
+	app.server = services.NewAuthServer(
+		app.jwt,
+		app.postgres,
+	)
 
 	err := app.startGRPC()
 	close(sigint)

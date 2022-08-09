@@ -40,12 +40,13 @@ func (s *APIGatewayService) Register(ctx context.Context, in *pb.RegisterRequest
 		Password: in.Password,
 	})
 	if err != nil {
-		return nil, err
+		return &pb.RegisterResponse{
+			Token: "",
+		}, err
 	}
 
 	return &pb.RegisterResponse{
 		Token: res.Token,
-		Error: res.Error,
 	}, err
 }
 
@@ -60,7 +61,6 @@ func (s *APIGatewayService) Login(ctx context.Context, in *pb.LoginRequest) (*pb
 
 	return &pb.LoginResponse{
 		Token: res.Token,
-		Error: res.Error,
 	}, err
 }
 
@@ -99,26 +99,62 @@ func (s *APIGatewayService) Query(ctx context.Context, in *pb.QueryRequest) (*pb
 	return &pb.QueryResponseArray{
 		Count: res.Count,
 		Items: res.Items,
-		Error: res.Error,
 	}, nil
 }
 
-func (s *APIGatewayService) Command(ctx context.Context, in *pb.CommandRequest) (*pb.CommandResponse, error) {
+func (s *APIGatewayService) AddCommand(ctx context.Context, in *pb.CommandRequest) (*pb.CommandResponse, error) {
 	userID, err := getUserIDfromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := s.comm.Client.Command(ctx, &commpb.CommandRequest{
-		Operation: commpb.OperationType(in.Operation),
-		Type:      commpb.MessageType(in.Type),
-		UserID:    userID,
-		Data:      in.Data,
-		Meta:      in.Meta,
+	_, err = s.comm.Client.AddCommand(ctx, &commpb.CommandRequest{
+		Id:     in.Id,
+		Type:   commpb.MessageType(in.Type),
+		UserID: userID,
+		Data:   in.Data,
+		Meta:   in.Meta,
 	})
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "command error: %v", err)
+		return nil, status.Errorf(codes.Internal, "add command error: %v", err)
+	}
+	return &pb.CommandResponse{}, nil
+}
+
+func (s *APIGatewayService) ModifyCommand(ctx context.Context, in *pb.CommandRequest) (*pb.CommandResponse, error) {
+	userID, err := getUserIDfromContext(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	return &pb.CommandResponse{Error: res.Error}, nil
+	_, err = s.comm.Client.ModifyCommand(ctx, &commpb.CommandRequest{
+		Id:     in.Id,
+		Type:   commpb.MessageType(in.Type),
+		UserID: userID,
+		Data:   in.Data,
+		Meta:   in.Meta,
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "add command error: %v", err)
+	}
+	return &pb.CommandResponse{}, nil
+}
+
+func (s *APIGatewayService) DeleteCommand(ctx context.Context, in *pb.CommandRequest) (*pb.CommandResponse, error) {
+	userID, err := getUserIDfromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = s.comm.Client.DeleteCommand(ctx, &commpb.CommandRequest{
+		Id:     in.Id,
+		Type:   commpb.MessageType(in.Type),
+		UserID: userID,
+		Data:   in.Data,
+		Meta:   in.Meta,
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "add command error: %v", err)
+	}
+	return &pb.CommandResponse{}, nil
 }

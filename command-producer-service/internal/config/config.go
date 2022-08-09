@@ -14,7 +14,7 @@ type Config struct {
 	CommandConsumerURL string
 }
 
-const configFile = "./internal/config/envs/command-producer.env"
+const configFile = "./command-producer-service/internal/config/envs/command-producer.env"
 
 func NewConfig() *Config {
 	cfg := Config{}

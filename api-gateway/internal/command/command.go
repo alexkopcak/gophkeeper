@@ -20,7 +20,6 @@ func InitCommandServiceClient(ctx context.Context, cfg *config.Config) pb.Comman
 	if err != nil {
 		log.Fatal("could not connect: ", err)
 	}
-	defer cc.Close()
 
 	return pb.NewCommandServiceClient(cc)
 }

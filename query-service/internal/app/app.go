@@ -19,7 +19,7 @@ type App struct {
 	cfg        *config.Config
 	server     *services.QueryServer
 	serverGRPC *grpc.Server
-	db         *db.Handler
+	storage    db.Storage
 }
 
 func NewApp() *App {
@@ -29,7 +29,7 @@ func NewApp() *App {
 }
 
 func (app *App) Run() error {
-	app.db = db.Init(app.cfg.DBPostgresURL)
+	app.storage = db.NewPostgres(app.cfg.DBPostgresURL)
 
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
@@ -41,9 +41,7 @@ func (app *App) Run() error {
 		}
 	}()
 
-	app.server = &services.QueryServer{
-		Handler: app.db,
-	}
+	app.server = services.NewQueryServer(app.storage)
 
 	err := app.startGRPC()
 	close(sigint)

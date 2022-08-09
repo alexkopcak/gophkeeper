@@ -2,67 +2,73 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/alexkopcak/gophkeeper/auth-service/internal/db"
 	"github.com/alexkopcak/gophkeeper/auth-service/internal/models"
 	"github.com/alexkopcak/gophkeeper/auth-service/internal/pb"
 	"github.com/alexkopcak/gophkeeper/auth-service/internal/utils"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type AuthServer struct {
 	pb.UnimplementedAuthServiceServer
-	Handler *db.Handler
-	Jwt     *utils.JwtWraper
+	jwt     *utils.JwtWraper
+	storage db.Storage
+}
+
+func NewAuthServer(jwt *utils.JwtWraper, storage db.Storage) *AuthServer {
+	return &AuthServer{
+		jwt:     jwt,
+		storage: storage,
+	}
 }
 
 func (s *AuthServer) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	var user models.User
-
-	if res := s.Handler.DB.Where(
-		&models.User{Name: in.UserName}).First(&user); res.Error == nil {
+	user, err := s.storage.AddUser(&models.User{
+		Name:     in.UserName,
+		Password: in.Password,
+	})
+	if err != nil {
+		if errors.Is(err, db.ErrorUserAlreadyExist) {
+			return &pb.RegisterResponse{
+				Token:  "",
+				UserID: 0,
+			}, status.Errorf(codes.AlreadyExists, db.ErrorUserAlreadyExist.Error())
+		}
 		return &pb.RegisterResponse{
 			Token:  "",
 			UserID: 0,
-			Error:  "user already exists",
-		}, nil
+		}, status.Errorf(codes.Internal, err.Error())
 	}
 
-	var err error
-	user.Name = in.UserName
-	user.Password, err = utils.HashPassword(in.Password)
+	token, err := s.jwt.GenerateToken(user)
 
 	if err != nil {
-		return nil, err
-	}
-
-	tx := s.Handler.DB.Create(&user)
-
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
-
-	token, err := s.Jwt.GenerateToken(&user)
-
-	if err != nil {
-		return nil, err
+		return &pb.RegisterResponse{
+			Token:  "",
+			UserID: 0,
+		}, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &pb.RegisterResponse{
 		Token:  token,
 		UserID: user.Id,
-		Error:  "",
 	}, nil
 }
 
 func (s *AuthServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
-	var user models.User
+	fmt.Println(ctx)
+	fmt.Println(in)
+	user, err := s.storage.GetUser(&models.User{Name: in.UserName})
 
-	if res := s.Handler.DB.Where(&models.User{Name: in.UserName}).First(&user); res.Error != nil {
+	if err != nil {
 		return &pb.LoginResponse{
 			Token:  "",
 			UserID: 0,
-			Error:  "user not found",
-		}, nil
+		}, status.Errorf(codes.NotFound, err.Error())
 	}
 
 	match := utils.CheckPasswordHash(in.Password, user.Password)
@@ -71,35 +77,33 @@ func (s *AuthServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginR
 		return &pb.LoginResponse{
 			Token:  "",
 			UserID: 0,
-			Error:  "user not found",
-		}, nil
+		}, status.Errorf(codes.NotFound, db.ErrorUserNotFound.Error())
 	}
 
-	token, err := s.Jwt.GenerateToken(&user)
+	token, err := s.jwt.GenerateToken(user)
 
 	if err != nil {
-		return nil, err
+		return &pb.LoginResponse{
+			Token:  "",
+			UserID: 0,
+		}, status.Errorf(codes.Internal, "generate token error:", err.Error())
 	}
 
 	return &pb.LoginResponse{
 		Token:  token,
 		UserID: user.Id,
-		Error:  "",
 	}, nil
 }
 
 func (s *AuthServer) Verify(ctx context.Context, in *pb.VerifyRequest) (*pb.VerifyResponse, error) {
-	claims, err := s.Jwt.ValidateToken(in.Token)
+	claims, err := s.jwt.ValidateToken(in.Token)
 
 	if err != nil {
-		return &pb.VerifyResponse{
-			Error: "bad request",
-		}, err
+		return &pb.VerifyResponse{}, status.Errorf(codes.Internal, "bad request", err.Error())
 	}
 
 	return &pb.VerifyResponse{
 		UserID: claims.IdUser,
-		Error:  "",
 	}, nil
 
 }

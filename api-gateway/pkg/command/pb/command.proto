@@ -13,17 +13,18 @@ enum MessageType {
   CARD = 4;
 }
 
-// Enum operation type
-enum OperationType {
-  UNKNOWN_OPERATION = 0;
-  ADD = 1;
-  MODIFY = 2;
-  DELETE = 3;
-}
+// // Enum operation type
+// enum OperationType {
+//   UNKNOWN_OPERATION = 0;
+//   ADD = 1;
+//   MODIFY = 2;
+//   DELETE = 3;
+// }
 
 // Command
 message CommandRequest {
-  OperationType operation = 1;
+  int64 id = 1;
+//  OperationType operation = 2;
   MessageType type = 2;
   int64 userID = 3;
   bytes data = 4;
@@ -31,9 +32,11 @@ message CommandRequest {
 }
 
 message CommandResponse {
-  string error = 1;
 }
 
 service CommandService {
-    rpc Command(CommandRequest) returns (CommandResponse) {}
+    //rpc Command(CommandRequest) returns (CommandResponse) {}
+    rpc AddCommand(CommandRequest) returns (CommandResponse) {}
+    rpc ModifyCommand(CommandRequest) returns (CommandResponse) {}
+    rpc DeleteCommand(CommandRequest) returns (CommandResponse) {}
 }

@@ -32,7 +32,6 @@ func InitAuthServiceClient(ctx context.Context, cfg *config.Config) pb.AuthServi
 	if err != nil {
 		log.Fatal("Could not connect:", err)
 	}
-	defer cc.Close()
 
 	return pb.NewAuthServiceClient(cc)
 }

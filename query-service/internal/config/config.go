@@ -13,7 +13,7 @@ type Config struct {
 	DBPostgresURL string
 }
 
-const configFile = "./internal/config/envs/query.env"
+const configFile = "./query-service/internal/config/envs/query.env"
 
 func NewConfig() *Config {
 	cfg := Config{}
@@ -49,6 +49,6 @@ func (c *Config) loadEnv() {
 
 func (c *Config) getFlagConfig() {
 	flag.StringVar(&c.Port, "p", c.Port, "Query service port, example :30001")
-	flag.StringVar(&c.DBPostgresURL, "db", c.DBPostgresURL, "DB Postgres URL, example postgres://<USER>:<PASSWORD>@<HOST>:<PORT>/auth_db")
+	flag.StringVar(&c.DBPostgresURL, "db", c.DBPostgresURL, "DB URL, example postgres://<USER>:<PASSWORD>@<HOST>:<PORT>/auth_db")
 	flag.Parse()
 }

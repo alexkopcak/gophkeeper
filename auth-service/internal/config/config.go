@@ -14,7 +14,7 @@ type Config struct {
 	JWTSecretKey  string
 }
 
-const configFile = "./internal/config/envs/auth.env"
+const configFile = "./auth-service/internal/config/envs/auth.env"
 
 func NewConfig() *Config {
 	cfg := Config{}

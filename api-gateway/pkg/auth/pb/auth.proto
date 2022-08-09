@@ -13,7 +13,6 @@ message RegisterRequest {
 message RegisterResponse {
   string token = 1;
   int64 userID = 2;
-  string error = 3;
 }
 
 // Login
@@ -25,7 +24,6 @@ message LoginRequest {
 message LoginResponse {
   string token = 1;
   int64 userID = 2;
-  string error = 3;
 }
 
 // Verify
@@ -35,7 +33,6 @@ message VerifyRequest {
 
 message VerifyResponse {
   int64 userID = 1;
-  string error = 2;
 }
 
 service AuthService {
