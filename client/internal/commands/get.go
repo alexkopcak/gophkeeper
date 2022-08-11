@@ -11,35 +11,37 @@ import (
 	"github.com/alexkopcak/gophkeeper/client/internal/client"
 )
 
+var (
+	getCmd = &cobra.Command{
+		Use:   "get",
+		Short: "get gophkeeper stored user data",
+		Long:  `This command can be used to get user stored data at gophkeeper`,
+	}
+)
+
+func init() {
+	getCmd.PersistentFlags().StringVarP(&nameValue, "user", "u", "", "user name")
+	getCmd.MarkPersistentFlagRequired("user")
+
+	getCmd.PersistentFlags().StringVarP(&passwordValue, "password", "p", "", "user password")
+	getCmd.MarkPersistentFlagRequired("password")
+}
+
 type GetCmd struct {
 	Command *cobra.Command
 }
 
 func NewGetCmd(ctx context.Context, cli *client.ServiceClient) *GetCmd {
-	getCmd := &cobra.Command{
-		Use:   "get",
-		Short: "get gophkeeper stored user data",
-		Long:  `This command can be used to get user stored data at gophkeeper`,
-	}
-
-	var name string
-	getCmd.PersistentFlags().StringVarP(&name, "user", "u", "", "user name")
-
-	var password string
-	getCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "user password")
-
-	var res *pb.LoginResponse
-	var err error
-
 	anyType := &cobra.Command{
 		Use:   "any",
 		Short: "any type of stored data",
 		Long:  `This command can be used to get any type of stored data`,
-		PreRun: func(cmd *cobra.Command, args []string) {
-			res, err = cli.Client.Login(ctx, &pb.LoginRequest{
-				UserName: name,
-				Password: password,
+		Run: func(cmd *cobra.Command, args []string) {
+			res, err := cli.Client.Login(ctx, &pb.LoginRequest{
+				UserName: nameValue,
+				Password: passwordValue,
 			})
+
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -47,16 +49,15 @@ func NewGetCmd(ctx context.Context, cli *client.ServiceClient) *GetCmd {
 			if res == nil {
 				log.Fatal("something went wrong")
 			}
+
 			if res.Token == "" {
 				log.Fatal("empty token")
 			}
-			fmt.Println("get any type prerun executed")
-		},
 
-		Run: func(cmd *cobra.Command, args []string) {
 			qres, err := cli.Client.Query(context.WithValue(ctx, client.KeyPrincipalID, res.Token), &pb.QueryRequest{
 				Type: pb.MessageType_ANY,
 			})
+
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -69,12 +70,12 @@ func NewGetCmd(ctx context.Context, cli *client.ServiceClient) *GetCmd {
 		Use:   "bin",
 		Short: "bin type of stored data",
 		Long:  `This command can be used to get binnary type of stored data`,
-
-		PreRun: func(cmd *cobra.Command, args []string) {
-			res, err = cli.Client.Login(ctx, &pb.LoginRequest{
-				UserName: name,
-				Password: password,
+		Run: func(cmd *cobra.Command, args []string) {
+			res, err := cli.Client.Login(ctx, &pb.LoginRequest{
+				UserName: nameValue,
+				Password: passwordValue,
 			})
+
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -82,12 +83,11 @@ func NewGetCmd(ctx context.Context, cli *client.ServiceClient) *GetCmd {
 			if res == nil {
 				log.Fatal("something went wrong")
 			}
+
 			if res.Token == "" {
 				log.Fatal("empty token")
 			}
-			fmt.Println("get bin type prerun executed")
-		},
-		Run: func(cmd *cobra.Command, args []string) {
+
 			qres, err := cli.Client.Query(context.WithValue(ctx, client.KeyPrincipalID, res.Token), &pb.QueryRequest{
 				Type: pb.MessageType_BINNARY,
 			})
@@ -104,11 +104,12 @@ func NewGetCmd(ctx context.Context, cli *client.ServiceClient) *GetCmd {
 		Short: "card type of stored data",
 		Long:  `This command can be used to get card type of stored data`,
 
-		PreRun: func(cmd *cobra.Command, args []string) {
-			res, err = cli.Client.Login(ctx, &pb.LoginRequest{
-				UserName: name,
-				Password: password,
+		Run: func(cmd *cobra.Command, args []string) {
+			res, err := cli.Client.Login(ctx, &pb.LoginRequest{
+				UserName: nameValue,
+				Password: passwordValue,
 			})
+
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -116,12 +117,11 @@ func NewGetCmd(ctx context.Context, cli *client.ServiceClient) *GetCmd {
 			if res == nil {
 				log.Fatal("something went wrong")
 			}
+
 			if res.Token == "" {
 				log.Fatal("empty token")
 			}
-			fmt.Println("get card type prerun executed")
-		},
-		Run: func(cmd *cobra.Command, args []string) {
+
 			qres, err := cli.Client.Query(context.WithValue(ctx, client.KeyPrincipalID, res.Token), &pb.QueryRequest{
 				Type: pb.MessageType_CARD,
 			})
@@ -137,12 +137,12 @@ func NewGetCmd(ctx context.Context, cli *client.ServiceClient) *GetCmd {
 		Use:   "cred",
 		Short: "login pasword type of stored data",
 		Long:  `This command can be used to get login password type of stored data`,
-
-		PreRun: func(cmd *cobra.Command, args []string) {
-			res, err = cli.Client.Login(ctx, &pb.LoginRequest{
-				UserName: name,
-				Password: password,
+		Run: func(cmd *cobra.Command, args []string) {
+			res, err := cli.Client.Login(ctx, &pb.LoginRequest{
+				UserName: nameValue,
+				Password: passwordValue,
 			})
+
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -150,12 +150,11 @@ func NewGetCmd(ctx context.Context, cli *client.ServiceClient) *GetCmd {
 			if res == nil {
 				log.Fatal("something went wrong")
 			}
+
 			if res.Token == "" {
 				log.Fatal("empty token")
 			}
-			fmt.Println("get login password type prerun executed")
-		},
-		Run: func(cmd *cobra.Command, args []string) {
+
 			qres, err := cli.Client.Query(context.WithValue(ctx, client.KeyPrincipalID, res.Token), &pb.QueryRequest{
 				Type: pb.MessageType_CARD,
 			})
@@ -171,11 +170,12 @@ func NewGetCmd(ctx context.Context, cli *client.ServiceClient) *GetCmd {
 		Short: "text type of stored data",
 		Long:  `This command can be used to get text type of stored data`,
 
-		PreRun: func(cmd *cobra.Command, args []string) {
-			res, err = cli.Client.Login(ctx, &pb.LoginRequest{
-				UserName: name,
-				Password: password,
+		Run: func(cmd *cobra.Command, args []string) {
+			res, err := cli.Client.Login(ctx, &pb.LoginRequest{
+				UserName: nameValue,
+				Password: passwordValue,
 			})
+
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -183,12 +183,11 @@ func NewGetCmd(ctx context.Context, cli *client.ServiceClient) *GetCmd {
 			if res == nil {
 				log.Fatal("something went wrong")
 			}
+
 			if res.Token == "" {
 				log.Fatal("empty token")
 			}
-			fmt.Println("get text type prerun executed")
-		},
-		Run: func(cmd *cobra.Command, args []string) {
+
 			qres, err := cli.Client.Query(context.WithValue(ctx, client.KeyPrincipalID, res.Token), &pb.QueryRequest{
 				Type: pb.MessageType_CARD,
 			})

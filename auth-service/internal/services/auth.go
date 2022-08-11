@@ -3,14 +3,14 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/alexkopcak/gophkeeper/auth-service/internal/db"
 	"github.com/alexkopcak/gophkeeper/auth-service/internal/models"
 	"github.com/alexkopcak/gophkeeper/auth-service/internal/pb"
 	"github.com/alexkopcak/gophkeeper/auth-service/internal/utils"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type AuthServer struct {
@@ -60,8 +60,6 @@ func (s *AuthServer) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.
 }
 
 func (s *AuthServer) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
-	fmt.Println(ctx)
-	fmt.Println(in)
 	user, err := s.storage.GetUser(&models.User{Name: in.UserName})
 
 	if err != nil {

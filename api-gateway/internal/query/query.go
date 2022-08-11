@@ -20,7 +20,6 @@ func InitQueryServiceClient(ctx context.Context, cfg *config.Config) pb.QuerySer
 	if err != nil {
 		log.Fatal("could not connect:", err)
 	}
-	defer cc.Close()
 
 	return pb.NewQueryServiceClient(cc)
 }

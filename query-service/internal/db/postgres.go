@@ -9,7 +9,7 @@ import (
 )
 
 type Postgres struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
 var _ Storage = (*Postgres)(nil)
@@ -29,39 +29,20 @@ func NewPostgres(url string) Storage {
 }
 
 func (p *Postgres) GetRecord(value *models.Record) (*[]models.Record, error) {
-	res := p.DB.Where(&value)
+	var item = &models.Record{
+		UserId: value.UserId,
+	}
 
+	if value.MessageType != 0 {
+		item.MessageType = value.MessageType
+	}
+
+	var result []models.Record
+
+	res := p.db.Model(&models.Record{}).Where(&models.Record{}, item).Scan(&result)
 	if res.Error != nil {
 		return nil, res.Error
 	}
 
-	count := res.RowsAffected
-	rows, err := res.Rows()
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	items := make([]models.Record, 0, count)
-
-	var record *models.Record
-	for rows.Next() {
-		err = p.DB.ScanRows(rows, record)
-
-		if err != nil {
-			return nil, err
-		}
-
-		items = append(items, models.Record{
-			Id:          record.Id,
-			UserId:      record.UserId,
-			MessageType: record.MessageType,
-			Data:        record.Data,
-			Meta:        record.Meta,
-		})
-	}
-
-	return &items, nil
+	return &result, nil
 }

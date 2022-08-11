@@ -2,7 +2,6 @@ package db
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/alexkopcak/gophkeeper/auth-service/internal/models"
@@ -12,7 +11,7 @@ import (
 )
 
 type Postgres struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
 var _ (Storage) = (*Postgres)(nil)
@@ -37,21 +36,14 @@ func NewPostgres(url string) Storage {
 }
 
 func (p *Postgres) GetUser(value *models.User) (*models.User, error) {
-	user := models.User{
-		Name: value.Name,
-	}
+	user := models.User{}
 
-	tx := p.DB.Where(&models.User{Name: value.Name})
+	tx := p.db.Where(&models.User{Name: value.Name}).First(&user)
 
-	fmt.Println(tx.Error)
-	fmt.Println(tx.RowsAffected)
-	if tx.Error != nil || tx.RowsAffected == 0 {
-		return &user, ErrorUserNotFound
-	}
-
-	txf := tx.First(&user)
-	if txf.Error != nil {
-		return &user, ErrorUserNotFound
+	if tx.Error != nil {
+		return &models.User{
+			Name: value.Name,
+		}, ErrorUserNotFound
 	}
 
 	return &user, nil
@@ -70,7 +62,7 @@ func (p *Postgres) AddUser(value *models.User) (*models.User, error) {
 		return nil, err
 	}
 
-	tx := p.DB.Create(&user)
+	tx := p.db.Create(&user)
 
 	return user, tx.Error
 }

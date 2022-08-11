@@ -25,17 +25,14 @@ func NewRegisterCmd(ctx context.Context, client *client.ServiceClient) *Register
 		Long:  `This command can be used add new gophkeeper user`,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			resp, err := client.Client.Register(ctx, &pb.RegisterRequest{
+			_, err := client.Client.Register(ctx, &pb.RegisterRequest{
 				UserName: name,
 				Password: password,
 			})
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println(resp)
-			fmt.Println("register user func executed")
-			fmt.Println("user", name)
-			fmt.Println("password", password)
+			fmt.Println("user registered successfully")
 		},
 	}
 
